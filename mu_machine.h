@@ -1,7 +1,8 @@
 #ifndef MU_MACHINE_H
 #define MU_MACHINE_H
 
-#include "../../d/lukalib/lukalib/lukalib.h"
+#include "lukalib.h"
+#define BOOST_DISABLE_ASSERTS
 #include <boost/tokenizer.hpp>
 #include <memory>
 #include <cctype>
@@ -9,7 +10,10 @@
 using boost::tokenizer;
 using boost::char_separator;
 
-tokenizer<char_separator<char>>::iterator& next_token(tokenizer<char_separator<char>>::iterator& itr, int& line, string& line_code);
+tokenizer<char_separator<char>>::iterator& next_token(tokenizer<char_separator<char>>::iterator& itr,
+                                                      int& line,
+                                                      string& line_code,
+                                                      bool record);
 
 struct expr
 {

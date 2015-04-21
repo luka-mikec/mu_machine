@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>782</width>
-    <height>462</height>
+    <width>922</width>
+    <height>606</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>501</width>
-      <height>391</height>
+      <y>20</y>
+      <width>661</width>
+      <height>511</height>
      </rect>
     </property>
     <property name="title">
@@ -30,9 +30,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
-       <width>481</width>
-       <height>351</height>
+       <y>30</y>
+       <width>641</width>
+       <height>471</height>
       </rect>
      </property>
      <property name="font">
@@ -54,18 +54,26 @@ mul y + 1, x = add(mul(y, x), x)
 exp 0,     x = sc(z(x))
 exp y + 1, x = mul(exp(y, x), sc(sc(z(x))))
 
+b1 x = sc(z(x))
+b2 x = sc(b1(x))
+b5 x = sc(mul(b2(x), b2(x)))
+b10 x = mul(b2(x), b5(x))
 
-run x = exp(x, x)</string>
+cc x y = add(mul(x, b10(x)), y)
+cc3 a b c = cc(cc(a, b), c)
+cc4 a b c d = cc(cc3(a, b, c), d)
+
+run a b c d = cc4(a b c d)</string>
      </property>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>680</x>
       <y>20</y>
       <width>231</width>
-      <height>221</height>
+      <height>351</height>
      </rect>
     </property>
     <property name="title">
@@ -75,9 +83,9 @@ run x = exp(x, x)</string>
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>20</y>
+       <y>30</y>
        <width>191</width>
-       <height>191</height>
+       <height>301</height>
       </rect>
      </property>
      <property name="lineWrapMode">
@@ -92,8 +100,8 @@ y = 2</string>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>530</x>
-      <y>280</y>
+      <x>680</x>
+      <y>420</y>
       <width>221</width>
       <height>111</height>
      </rect>
@@ -121,8 +129,8 @@ y = 2</string>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>250</y>
+      <x>700</x>
+      <y>380</y>
       <width>191</width>
       <height>27</height>
      </rect>
@@ -137,7 +145,7 @@ y = 2</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>782</width>
+     <width>922</width>
      <height>25</height>
     </rect>
    </property>

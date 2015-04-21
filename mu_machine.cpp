@@ -1,7 +1,7 @@
 #include "mu_machine.h"
 
 
-tokenizer<char_separator<char>>::iterator& next_token(tokenizer<char_separator<char>>::iterator& itr, int& line, string& line_code)
+tokenizer<char_separator<char>>::iterator& next_token(tokenizer<char_separator<char>>::iterator& itr, int& line, string& line_code, bool record = true)
 {
     if (itr.at_end())
         return itr;
@@ -11,17 +11,21 @@ tokenizer<char_separator<char>>::iterator& next_token(tokenizer<char_separator<c
     {
         while (*itr == "\n")
         {
-            ++line;
+            if (record) ++line;
             ++itr;
-            line_code = "";
+            if (record) line_code = "";
         }
+
+        if (!itr.at_end() && record)
+            line_code += *itr + " ";
+
         return itr;
     }
     else
     {
         ++itr;
-        if (!itr.at_end())
-            line_code += *itr;
+        if (!itr.at_end() && record)
+            line_code += *itr + " ";
     }
 
     return itr;
@@ -37,7 +41,7 @@ expr::
          map<string, int>                          &arities)
     {
         if (it.at_end())
-            throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"unexpected ending - check () pairs and function arities.");
+            throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"unexpected ending - check () pairs and function arities.");
 
         if (what_to_do == parse_expect::statement)
         {
@@ -60,25 +64,30 @@ expr::
         else if (what_to_do == parse_expect::declaration)
         {
             object_name = *it;
-            auto backup = it;
             string test_for_y_plus_1;
-            next_token(it, line, line_code); test_for_y_plus_1 = *it;
-            next_token(it, line, line_code); test_for_y_plus_1 += *it;
-            next_token(it, line, line_code); test_for_y_plus_1 += *it;
+
+            auto test = it;
+
+            next_token(test, line, line_code, false); test_for_y_plus_1 = *test;
+            next_token(test, line, line_code, false); test_for_y_plus_1 += *test;
+            next_token(test, line, line_code, false); test_for_y_plus_1 += *test;
 
             if (test_for_y_plus_1 == "y+1")
             {
+                next_token(it, line, line_code);
+                next_token(it, line, line_code);
+                next_token(it, line, line_code);
+
                 t = type::recursive_declaration_step;
                 if (function_names.find(object_name) == function_names.end())
-                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"base case should precede step case, function: '" + object_name + "'.");
+                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"base case should precede step case, function: '" + object_name + "'.");
                 next_token(it, line, line_code);
             }
             else
             { // declaration of recursive function base, or basic declaration
                 if (function_names.find(object_name) != function_names.end())
-                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"function '" + object_name + "' already declared.");
+                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"function '" + object_name + "' already declared.");
 
-                it = backup;
                 next_token(it, line, line_code);
                 if (test_for_y_plus_1[0] == '0')
                 {
@@ -92,11 +101,11 @@ expr::
             while (*it != "=")
             {
                 if (it->size() == 0)
-                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"syntax error in declaration of '" + object_name + "'.");
+                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"syntax error in declaration of '" + object_name + "'.");
                 if (!isalpha((*it)[0]))
-                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable name '" + *it + "' should start with a letter.");
+                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable name '" + *it + "' should start with a letter.");
                 if (contains(vars, *it))
-                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable name '" + *it + "' repeated within the same declaration.");
+                    throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable name '" + *it + "' repeated within the same declaration.");
 
                 vars.push_back(*it);
                 next_token(it, line, line_code);
@@ -104,10 +113,10 @@ expr::
 
             if (t == type::recursive_declaration_step &&
                 vars.size() + 1 != arities[object_name])
-                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"function '" + object_name + "' step case has more arguments than base case.");
+                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"function '" + object_name + "' step case has more arguments than base case.");
 
             if (vars.empty())
-                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"functions require at least one argument.");
+                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"functions require at least one argument.");
 
             available_vars.insert(vars.begin(), vars.end());
             if (t == type::recursive_declaration_step)
@@ -145,17 +154,17 @@ expr::
                auto tmp = it;
                ++tmp; // next
                if (*tmp == "(")
-                   throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"'" + *it + "' is variable and can't be called.");
+                   throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"'" + *it + "' is variable and can't be called.");
                return;
             }
             else
-               throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"declare '" + *it + "' before using it.");
+               throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"declare '" + *it + "' before using it.");
 
 
             next_token(it, line, line_code);
 
             if (*it != "(")
-                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"expected '('.");
+                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"expected '('.");
 
             next_token(it, line, line_code);
 
@@ -170,10 +179,10 @@ expr::
                 next_token(it, line, line_code);
             }
             if (arities[object_name] >= 0 && function_call_babies.size() != arities[object_name])
-                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"wrong number of arguments in call to '" + object_name + "'.");
+                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"wrong number of arguments in call to '" + object_name + "'.");
 
             if (t == type::identity_function && identity_f_k >= function_call_babies.size())
-                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"identity must return value of a baby.");
+                throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"identity must return value of a baby.");
 
         }
     }
@@ -245,7 +254,7 @@ int compile_and_run(tokenizer<char_separator<char>>& tokens, tokenizer<char_sepa
     map<string, int> arities = {{"sc", 1}, {"z", 1}};
     map<string, pair<expr*, expr*>> functions;
     int line = 0;
-    string line_code = "";
+    string line_code = *tokens.begin() + " ";
 
     for (int i = 0; i < 5; ++i)
     {
@@ -274,7 +283,7 @@ int compile_and_run(tokenizer<char_separator<char>>& tokens, tokenizer<char_sepa
     //auto izraz = tokenize("___main x y = f(x, y)");
 
     if (functions.find("run") == functions.end())
-        throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"compiled ok, but missing 'run' function.");
+        throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"compiled ok, but missing 'run' function.");
 
     map<string, int> vals;
 
@@ -284,21 +293,21 @@ int compile_and_run(tokenizer<char_separator<char>>& tokens, tokenizer<char_sepa
     {
         string name, eql, value;
         name = *it++;
-        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable binding parse error.");
+        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable binding parse error.");
         while (*it == "\n") ++it;
-        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable binding parse error.");
+        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable binding parse error.");
         eql = *it++;
-        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable binding parse error.");
+        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable binding parse error.");
         while (*it == "\n") ++it;
-        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable binding parse error.");
+        if (it.at_end()) throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable binding parse error.");
         value = *it++;
         if (!it.at_end()) while (*it == "\n") ++it;
 
         if (name.empty() || eql.empty() || value.empty())
-            throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable binding parse error.");
+            throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable binding parse error.");
 
         if (! isalpha(name[0]) || eql != "=" || !all_of(full(value), [](char c) {return isdigit(c); }))
-            throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "; error: "  +"variable binding should be in this format: '[a-z][^=]*[=][0-9]+\n'");
+            throw runtime_error("line " + scast<string>(line) + ", around: " + line_code + "\n\nerror: "  +"variable binding should be in this format: '[a-z][^=]*[=][0-9]+\n'");
 
         vals[name] = scast<int>(value);
     }
