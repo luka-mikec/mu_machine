@@ -48,22 +48,81 @@
       <string>add 0,     x = x
 add y + 1, x = sc(add(y, x))
 
+
+pr_ 0,     x = z(x)
+pr_ y + 1, x = .0(y)
+pr x = pr_(x x)
+
+
+subinv 0,     x = x
+subinv y + 1, x = pr(subinv(y, x))
+
+
+sub x y = subinv(y x)
+
+
+neg_ 0,     x = sc(z(x))
+neg_ y + 1, x = z(x)
+neg x = neg_(x x)
+
+
+sg x = neg(neg(x))
+
+
+gte x y = neg(sub(y, x))
+
+
 mul 0,     x = z(x)
 mul y + 1, x = add(mul(y, x), x)
 
-exp 0,     x = sc(z(x))
-exp y + 1, x = mul(exp(y, x), sc(sc(z(x))))
+
+exp_ 0,     x = sc(z(x))
+exp_ y + 1, x = mul(exp_(y, x), x)
+exp base power = exp_(power base)
+
+
+exp2 n = exp(sc(sc(z(n))), n)
+
 
 b1 x = sc(z(x))
 b2 x = sc(b1(x))
 b5 x = sc(mul(b2(x), b2(x)))
 b10 x = mul(b2(x), b5(x))
-
 cc x y = add(mul(x, b10(x)), y)
 cc3 a b c = cc(cc(a, b), c)
 cc4 a b c d = cc(cc3(a, b, c), d)
 
-run a b c d = cc4(a b c d)</string>
+
+g x, i = exp(x,i)
+h x, i = i
+
+sum_first_ 0,     x = g(x, z(x))
+sum_first_ y + 1, x = add(sum_first_(y, x), g(x, sc(y)))
+sum_first x = sum_first_(x x)
+
+
+mul_seq_ 0,     offset, x = h(x, offset)
+mul_seq_ y + 1, offset, x = mul(mul_seq_(z(x), offset, x), h(x, add(offset, sc(y))))
+mul_from_to left right x = mul(mul_seq_(sub(right, left), left, x), neg(sub(left, right)))
+
+
+sum_from_to_ l, r, x = mul(add(sub(sum_first_(r, x), sum_first_(l, x)),  g(x, l)), neg(sub(l, r)))
+sum_from_to left right = sum_from_to_(left right right)
+
+
+INFO_this_gives_smallest_number_A_such_that_2xA_larger_than_7 		info=info
+
+mu_h x i = neg( gte(mul(b2(x), i), sc(sc(b5(x)))) )
+mu_mul_seq_ 0,     offset, x = mu_h(x, offset)
+mu_mul_seq_ y + 1, offset, x = mul(mu_mul_seq_(z(x), offset, x), mu_h(x, add(offset, sc(y))))
+mu_mul_from_to left right x = mul(mu_mul_seq_(sub(right, left), left, x), neg(sub(left, right)))
+mu_g x i = mu_mul_from_to(z(x), i, x)
+mu_ 0,     x = mu_g(x, z(x))
+mu_ y + 1, x = add(mu_(y, x), mu_g(x, sc(y)))
+mu x limit = mu_ (limit x)
+
+
+run a b c d = mu(b, d)</string>
      </property>
     </widget>
    </widget>
@@ -92,8 +151,10 @@ run a b c d = cc4(a b c d)</string>
       <enum>QPlainTextEdit::NoWrap</enum>
      </property>
      <property name="plainText">
-      <string>x = 5
-y = 2</string>
+      <string>a = 1
+b = 2
+c = 3
+d = 9</string>
      </property>
     </widget>
    </widget>

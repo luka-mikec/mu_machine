@@ -231,7 +231,7 @@ expr::
                 int previous_value = f.first->right->eval(vals2, object_name, functions);
                 for (int i = 1; i <= args[0]; ++i)
                 {
-                    vals2["y"] = i;
+                    vals2["y"] = i - 1;
                     vals2["_____previous_recursion_value"] = previous_value;
                     previous_value = f.second->right->eval(vals2, object_name, functions);
                 }
