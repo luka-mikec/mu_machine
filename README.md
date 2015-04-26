@@ -9,6 +9,13 @@ Requires:
  
 Notes:
  - all commas are optional, and can be added anywhere (f,(x y) = ,Sc(x,,,) is valid code)
+
+----
+
+Planned:
+ - saving and manipulating numbers in factorized form
+ - optimizations:
+   - if induction step case doesn't depend on f(y ...), run just the y-th iteration 
  
 ---- 
  
@@ -45,6 +52,8 @@ Builtin functions:
 
   g something counter something_else = f counter something something_else
 
+- *Macros*
+   Syntax: { macro_parameters | statement1 ... statementn } (see example)
 
 ----
 

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <iostream>
 #include <QMessageBox>
+#include <regex>
 #include "mu_machine.h"
 
 using namespace std;
@@ -27,7 +28,11 @@ void MainWindow::on_pushButton_clicked()
     {
         std::string text = this->ui->plainTextEdit->toPlainText().toStdString();
         std::string text2 = this->ui->plainTextEdit_2->toPlainText().toStdString();
-        char_separator<char> sep(" \t\r,", "()+=\n");
+
+        text = regex_replace(text, regex("#[^#]*#"), " ");
+        text2 = regex_replace(text2, regex("#[^#]*#"), " ");
+
+        char_separator<char> sep(" \t\r,", "{}|()+=\n");
         tokenizer<char_separator<char>> tokens(text, sep);
         tokenizer<char_separator<char>> tokens2(text2, sep);
         if (all_of(full(tokens), [](string tok) { return tok == "\n"; }))

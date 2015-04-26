@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>922</width>
-    <height>606</height>
+    <width>1144</width>
+    <height>622</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>mu_machine</string>
@@ -19,9 +25,18 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>661</width>
-      <height>511</height>
+      <width>881</width>
+      <height>521</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
     </property>
     <property name="title">
      <string>Code</string>
@@ -31,53 +46,78 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>641</width>
-       <height>471</height>
+       <width>851</width>
+       <height>481</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Monospace</family>
-       <pointsize>11</pointsize>
+       <pointsize>10</pointsize>
       </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
      <property name="lineWrapMode">
       <enum>QPlainTextEdit::NoWrap</enum>
      </property>
      <property name="plainText">
       <string>add 0,     x = x
+
 add y + 1, x = sc(add(y, x))
 
 
+mul 0,     x = z(x)
+
+mul y + 1, x = add(mul(y, x), x)
+
+
 pr_ 0,     x = z(x)
+
 pr_ y + 1, x = .0(y)
+
 pr x = pr_(x x)
 
 
 subinv 0,     x = x
-subinv y + 1, x = pr(subinv(y, x))
 
+subinv y + 1, x = pr(subinv(y, x))
 
 sub x y = subinv(y x)
 
 
 neg_ 0,     x = sc(z(x))
+
 neg_ y + 1, x = z(x)
+
 neg x = neg_(x x)
 
 
 sg x = neg(neg(x))
 
 
+and x y = mul(sg(x), sg(y))
+
+
+or x y = neg(and(neg(x) neg(y)))
+
+
+cond x y = or(neg(x) y)
+
+
+iff x y = and(cond(x y) cond(y x))
+
+
 gte x y = neg(sub(y, x))
 
 
-mul 0,     x = z(x)
-mul y + 1, x = add(mul(y, x), x)
+
 
 
 exp_ 0,     x = sc(z(x))
-exp_ y + 1, x = mul(exp_(y, x), x)
+
+exp_ y + 1, x  = mul(exp_(y, x), x)
 exp base power = exp_(power base)
 
 
@@ -97,42 +137,97 @@ g x, i = exp(x,i)
 h x, i = i
 
 sum_first_ 0,     x = g(x, z(x))
-sum_first_ y + 1, x = add(sum_first_(y, x), g(x, sc(y)))
+sum_first_ y + 1, x 
+= add(
+	sum_first_(y, x), 
+	g(x, sc(y))
+)
 sum_first x = sum_first_(x x)
 
 
 mul_seq_ 0,     offset, x = h(x, offset)
-mul_seq_ y + 1, offset, x = mul(mul_seq_(z(x), offset, x), h(x, add(offset, sc(y))))
-mul_from_to left right x = mul(mul_seq_(sub(right, left), left, x), neg(sub(left, right)))
+mul_seq_ y + 1, offset, x 
+= mul(
+	mul_seq_(z(x), offset, x), 
+	h(x, add(offset, sc(y)))
+)
+mul_from_to left right x 
+= mul(
+	mul_seq_(sub(right, left), left, x), 
+	neg(sub(left, right))
+)
 
 
-sum_from_to_ l, r, x = mul(add(sub(sum_first_(r, x), sum_first_(l, x)),  g(x, l)), neg(sub(l, r)))
+sum_from_to_ l, r, x 
+= mul(
+	add(
+		sub(sum_first_(r, x), sum_first_(l, x)),  
+		g(x, l)
+	), 
+	neg(sub(l, r))
+)
+
 sum_from_to left right = sum_from_to_(left right right)
 
 
-INFO_this_gives_smallest_number_A_such_that_2xA_larger_than_7 		info=info
+# this gives the smallest number A such that 2xA &gt; 7 #
 
-mu_h x i = neg( gte(mul(b2(x), i), sc(sc(b5(x)))) )
+mu_h x i 
+= neg( 
+	gte(
+		mul(b2(x), i), 
+		sc(sc(b5(x)))
+	) 
+)
+
 mu_mul_seq_ 0,     offset, x = mu_h(x, offset)
-mu_mul_seq_ y + 1, offset, x = mul(mu_mul_seq_(z(x), offset, x), mu_h(x, add(offset, sc(y))))
-mu_mul_from_to left right x = mul(mu_mul_seq_(sub(right, left), left, x), neg(sub(left, right)))
+
+mu_mul_seq_ y + 1, offset, x 
+= mul(
+	mu_mul_seq_(z(x), offset, x), 
+	mu_h(x, add(offset, sc(y)))
+)
+
+mu_mul_from_to left right x = 
+mul(
+	mu_mul_seq_(
+		sub(right, left), 
+		left, 
+		x
+	), 
+	neg(
+		sub(left, right)
+	)
+)
+
 mu_g x i = mu_mul_from_to(z(x), i, x)
 mu_ 0,     x = mu_g(x, z(x))
 mu_ y + 1, x = add(mu_(y, x), mu_g(x, sc(y)))
 mu x limit = mu_ (limit x)
 
 
-run a b c d = mu(b, d)</string>
+{ sumand | 
+   sum_fst 0,     x = sumand(x, z(x))
+   sum_fst y + 1, x 
+   = add(
+	sum_fst(y, x), 
+  	sumand(x, sc(y))
+   )
+   sum_f x = sum_fst{sumand}(x x)
+}
+
+
+run a b c d = sum_f{h} d</string>
      </property>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>900</x>
       <y>20</y>
       <width>231</width>
-      <height>351</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="title">
@@ -161,8 +256,8 @@ d = 9</string>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>420</y>
+      <x>900</x>
+      <y>430</y>
       <width>221</width>
       <height>111</height>
      </rect>
@@ -190,8 +285,8 @@ d = 9</string>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>380</y>
+      <x>920</x>
+      <y>390</y>
       <width>191</width>
       <height>27</height>
      </rect>
@@ -206,7 +301,7 @@ d = 9</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>922</width>
+     <width>1144</width>
      <height>25</height>
     </rect>
    </property>
