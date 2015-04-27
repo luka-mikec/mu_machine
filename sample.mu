@@ -55,11 +55,15 @@ exp_ y + 1, x  = mul(exp_(y, x), x)
 exp base power = exp_ power base
 exp2 n = exp(n2 n, n)
 
+# branch: branch cond if_true if_false = cond ? if_true : if_false #
+branch con iftrue iffalse = add mul(sg con, iftrue) mul(neg con, iffalse)
+
 # reverse pattern: reverse{f} x y = f y x #
 { reversee | reverse x y = reversee(y, x) }
 
 # adapter pattern: adapter{f, g} x y = f(g(x y)) #
-{ adaptee adaptee_nth | adapter x y = adaptee(adaptee_nth(x y)) }
+{ adaptee  adaptee_nth  | adapter  x y   = adaptee(adaptee_nth(x y))   }
+{ adaptee3 adaptee_nth3 | adapter3 x y w = adaptee3(adaptee_nth3(x y w)) }
 
 # restrict pattern: restrict{condition} x = x, if condition
                                             0, else       #
@@ -139,8 +143,21 @@ exp2 n = exp(n2 n, n)
     product l r = accumulate{add, factor} l r
 }
 
-# inverse unbounded mu-operator imu{f} x = (mu f)(f(x y) > 0) (searches for truth) #
+# inverse unbounded mu-operator imu{f} x = (mu y)(f(x y) > 0) (searches for truth) #
 { binary_mu_predicate |  imu x = mu{adapter{neg, binary_mu_predicate}} x }
+
+# bounded mu-operator (without primitive recursion, for performance) 
+  bmu{f} x limit = (mu y <= limit)(f(x y)) #
+{ binary_bmu_predicate | 
+   # if y < limit: returns sg f(x, y), else returns z #
+   bmu_helper x limit y = branch lt(y limit), sg binary_bmu_predicate(x y), n0 x
+
+   # bounded mu operator #
+   bmu x limit = mu2{bmu_helper{binary_bmu_predicate}} x limit
+
+   # bounded inverse mu operator #
+   bimu x limit = bmu{adapter3{neg, binary_bmu_predicate}} x limit
+}
 
 
 # uncomment one of these: #
@@ -152,4 +169,4 @@ exp2 n = exp(n2 n, n)
 # run a c  = accumulate{mul, exp2} a c #
 
 # what's 3 + 5? #
-run c d = add c d
+run a b c d = bimu{gt} c a

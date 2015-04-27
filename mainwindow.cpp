@@ -5,19 +5,27 @@
 #include <regex>
 #include "mu_machine.h"
 #include <fstream>
-#include <QFileDialog>
-#include <QTimer>
+
 
 using namespace std;
 using boost::tokenizer;
 using boost::char_separator;
 
 
-bool autosave = false;
-string old_adress = "sample.mu";
+#define full_gui_functionality
+
+#ifdef full_gui_functionality
+    #include <QFileDialog>
+    #include <QTimer>
+    bool autosave = false;
+    string old_adress = "sample.mu";
+#endif
+
 
 void MainWindow::autosave_handler()
 {
+#ifdef full_gui_functionality
+
     if (autosave && old_adress != "")
     {
         ofstream f(old_adress);
@@ -28,7 +36,10 @@ void MainWindow::autosave_handler()
         "mu_machine: " +
         (old_adress == "" ? string("None") : old_adress)
     ));
+#endif
 }
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+#ifdef full_gui_functionality
     old_adress = (QDir::currentPath() + QString("sample.mu")).toStdString();
     ifstream sample_code(old_adress);
     if (!sample_code.is_open())
@@ -66,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(autosave_handler()));
     autosave_handler();
     timer->start(3000);
+
+#endif
 
 }
 
@@ -110,6 +124,7 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_actionLoad_triggered()
 {
+#ifdef full_gui_functionality
     QFileDialog dialog;
     dialog.setFileMode(QFileDialog::AnyFile);
     if(dialog.exec()) {
@@ -120,11 +135,12 @@ void MainWindow::on_actionLoad_triggered()
         ui->plainTextEdit->setPlainText(qtxt);
         old_adress = dialog.selectedFiles()[0].toStdString();
     }
-
+#endif
 }
 
 void MainWindow::on_actionSave_triggered()
 {
+#ifdef full_gui_functionality
     QFileDialog dialog;
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
@@ -133,9 +149,12 @@ void MainWindow::on_actionSave_triggered()
         f << ui->plainTextEdit->toPlainText().toStdString();
         old_adress = dialog.selectedFiles()[0].toStdString();
     }
+#endif
 }
 
 void MainWindow::on_actionAutosave_triggered()
 {
+#ifdef full_gui_functionality
     autosave = ui->actionAutosave->isChecked();
+#endif
 }
