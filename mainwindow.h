@@ -17,7 +17,15 @@ public:
     ~MainWindow();
 
 private slots:
+    void autosave_handler();
+
     void on_pushButton_clicked();
+
+    void on_actionLoad_triggered();
+
+    void on_actionSave_triggered();
+
+    void on_actionAutosave_triggered();
 
 private:
     Ui::MainWindow *ui;

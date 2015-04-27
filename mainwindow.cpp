@@ -4,16 +4,69 @@
 #include <QMessageBox>
 #include <regex>
 #include "mu_machine.h"
+#include <fstream>
+#include <QFileDialog>
+#include <QTimer>
 
 using namespace std;
 using boost::tokenizer;
 using boost::char_separator;
+
+
+bool autosave = false;
+string old_adress = "sample.mu";
+
+void MainWindow::autosave_handler()
+{
+    if (autosave && old_adress != "")
+    {
+        ofstream f(old_adress);
+        f << ui->plainTextEdit->toPlainText().toStdString();
+
+    }
+    this->setWindowTitle(QString::fromStdString(
+        "mu_machine: " +
+        (old_adress == "" ? string("None") : old_adress)
+    ));
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    old_adress = (QDir::currentPath() + QString("sample.mu")).toStdString();
+    ifstream sample_code(old_adress);
+    if (!sample_code.is_open())
+    {
+        old_adress = "/host/dev/mu_machine/sample.mu";
+        sample_code.open(old_adress);
+    }
+
+    if (sample_code.is_open())
+    {
+        ui->actionAutosave->setChecked(true);
+        autosave = true;
+
+        stringstream ff;
+        ff << sample_code.rdbuf();
+        auto qtxt = QString::fromStdString(ff.str());
+        ui->plainTextEdit->setPlainText(qtxt);
+    }
+    else
+    {
+        autosave = false;
+        old_adress = "";
+
+        ui->plainTextEdit->setPlainText("");
+    }
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(autosave_handler()));
+    autosave_handler();
+    timer->start(3000);
+
 }
 
 MainWindow::~MainWindow()
@@ -52,4 +105,37 @@ void MainWindow::on_pushButton_clicked()
     }
 
     std::cout <<  std::endl;
+}
+
+
+void MainWindow::on_actionLoad_triggered()
+{
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::AnyFile);
+    if(dialog.exec()) {
+        ifstream f(dialog.selectedFiles()[0].toStdString());
+        stringstream ff;
+        ff << f.rdbuf();
+        auto qtxt = QString::fromStdString(ff.str());
+        ui->plainTextEdit->setPlainText(qtxt);
+        old_adress = dialog.selectedFiles()[0].toStdString();
+    }
+
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+    if(dialog.exec()) {
+        ofstream f(dialog.selectedFiles()[0].toStdString());
+        f << ui->plainTextEdit->toPlainText().toStdString();
+        old_adress = dialog.selectedFiles()[0].toStdString();
+    }
+}
+
+void MainWindow::on_actionAutosave_triggered()
+{
+    autosave = ui->actionAutosave->isChecked();
 }

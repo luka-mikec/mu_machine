@@ -217,7 +217,7 @@ mu x limit = mu_ (limit x)
 }
 
 
-run a b c d = sum_f{h} d</string>
+run a b c d = sum_f{g} d</string>
      </property>
     </widget>
    </widget>
@@ -249,7 +249,7 @@ run a b c d = sum_f{h} d</string>
       <string>a = 1
 b = 2
 c = 3
-d = 9</string>
+d = 5</string>
      </property>
     </widget>
    </widget>
@@ -305,6 +305,16 @@ d = 9</string>
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionAutosave"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -315,6 +325,24 @@ d = 9</string>
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionAutosave">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Autosave</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
