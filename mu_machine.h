@@ -2,13 +2,10 @@
 #define MU_MACHINE_H
 
 #include "lukalib.h"
-#define BOOST_DISABLE_ASSERTS
-#include <boost/tokenizer.hpp>
 #include <memory>
 #include <cctype>
+#include "tokenizer.h"
 
-using boost::tokenizer;
-using boost::char_separator;
 
 struct parse_state;
 struct mu_env;
@@ -16,8 +13,7 @@ struct expr;
 struct function_specification_node;
 
 
-tokenizer<char_separator<char>>::iterator& next_token(parse_state &state,
-                                                      bool record);
+tokenizer::iterator& next_token(parse_state &state, bool record);
 
 struct parse_state
 {
@@ -29,7 +25,7 @@ struct parse_state
     int    line;
     string line_code;
 
-    tokenizer<char_separator<char>>::iterator it;
+    tokenizer::iterator it;
 
 };
 
@@ -145,7 +141,7 @@ struct expr
 };
 
 
-int compile_and_run(tokenizer<char_separator<char>>& tokens, tokenizer<char_separator<char>>& bindings_tokens);
+pair<int, string> compile_and_run(tokenizer& tokens, tokenizer& bindings_tokens);
 
 inline void mu_throw(parse_state &state, string err)
 {

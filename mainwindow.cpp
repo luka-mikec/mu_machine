@@ -1,25 +1,31 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <iostream>
-#include <QMessageBox>
-#include <regex>
-#include "mu_machine.h"
-#include <fstream>
-
-
-using namespace std;
-using boost::tokenizer;
-using boost::char_separator;
-
-
 #define full_gui_functionality
 
+#include "mainwindow.h"
+#include <iostream>
+#include <regex>
+#include <fstream>
+
+using namespace std;
+
 #ifdef full_gui_functionality
+    #include <QMessageBox>
     #include <QFileDialog>
     #include <QTimer>
+
+    #include "ui_mainwindow.h"
+
     bool autosave = false;
     string old_adress = "sample.mu";
 #endif
+
+#include "mu_machine.h"
+#include "tokenizer.h"
+
+
+using namespace std;
+
+
+
 
 
 void MainWindow::autosave_handler()
@@ -47,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
 #ifdef full_gui_functionality
     old_adress = (QDir::currentPath() + QString("sample.mu")).toStdString();
     ifstream sample_code(old_adress);
@@ -65,6 +72,27 @@ MainWindow::MainWindow(QWidget *parent) :
         ff << sample_code.rdbuf();
         auto qtxt = QString::fromStdString(ff.str());
         ui->plainTextEdit->setPlainText(qtxt);
+
+
+        /*string str = regex_replace(ff.str(), regex("#[^#]*#"), " ");
+        char_separator<char> sep(" \t\r,", "{}|()+=\n");
+        boost::tokenizer tokens(str, sep);
+        auto qit = tokens.begin();
+        lu_tokenizer tk(str, "{}|()+=\n", " \t\r,");
+        auto mit = tk.begin();
+        string tks = "";
+
+        for (;;)
+        {
+            //if (*mit != *qit)
+                std::cout << "'" + *mit + "' ~ '" + *qit + "'\n";
+            ++mit; ++qit;
+            if (mit.at_end() != qit.at_end())
+                std::cout << "'" + *mit + "' ~ '" + *qit + "'\n";
+
+            if (mit.at_end() && qit.at_end())
+                break;
+        }*/
     }
     else
     {
@@ -99,16 +127,18 @@ void MainWindow::on_pushButton_clicked()
         text = regex_replace(text, regex("#[^#]*#"), " ");
         text2 = regex_replace(text2, regex("#[^#]*#"), " ");
 
-        char_separator<char> sep(" \t\r,", "{}|()+=\n");
-        tokenizer<char_separator<char>> tokens(text, sep);
-        tokenizer<char_separator<char>> tokens2(text2, sep);
-        if (all_of(full(tokens), [](string tok) { return tok == "\n"; }))
+        tokenizer tokens(text, "{}|()+=\n", " \t\r,");
+        tokenizer tokens2(text2, "{}|()+=\n", " \t\r,");
+        /*if (all_of(full(tokens), [](string tok) { return tok == "\n"; }))
               //  || all_of(full(tokens2), [](auto tok) { return *tok == "\n"; }))
-            throw runtime_error("code must be non-empty.");
+            throw runtime_error("code must be non-empty.");*/
 
+        auto rez = compile_and_run(tokens, tokens2);
         ui->plainTextEdit_3->setPlainText(QString::fromStdString("run (...) = " + scast<string>(
-            compile_and_run(tokens, tokens2)
+            rez.first
         )));
+
+        ui->plainTextEdit_4->setPlainText(QString::fromStdString("instantiated patterns:\n" + rez.second));
     }
     catch (runtime_error e)
     {

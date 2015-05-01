@@ -227,7 +227,7 @@ run a b c d = sum_f{g} d</string>
       <x>900</x>
       <y>20</y>
       <width>231</width>
-      <height>361</height>
+      <height>211</height>
      </rect>
     </property>
     <property name="title">
@@ -239,7 +239,7 @@ run a b c d = sum_f{g} d</string>
        <x>20</x>
        <y>30</y>
        <width>191</width>
-       <height>301</height>
+       <height>131</height>
       </rect>
      </property>
      <property name="lineWrapMode">
@@ -249,7 +249,23 @@ run a b c d = sum_f{g} d</string>
       <string>a = 1
 b = 2
 c = 3
-d = 5</string>
+d = 5
+e = 10
+le = 0
+de = 10</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>170</y>
+       <width>191</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Compile &amp;&amp; run</string>
      </property>
     </widget>
    </widget>
@@ -257,9 +273,9 @@ d = 5</string>
     <property name="geometry">
      <rect>
       <x>900</x>
-      <y>430</y>
+      <y>240</y>
       <width>221</width>
-      <height>111</height>
+      <height>301</height>
      </rect>
     </property>
     <property name="title">
@@ -271,7 +287,7 @@ d = 5</string>
        <x>20</x>
        <y>20</y>
        <width>191</width>
-       <height>81</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="lineWrapMode">
@@ -281,19 +297,22 @@ d = 5</string>
       <string>run (...) = ?</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>920</x>
-      <y>390</y>
-      <width>191</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Compile &amp;&amp; run</string>
-    </property>
+    <widget class="QPlainTextEdit" name="plainTextEdit_4">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>191</width>
+       <height>231</height>
+      </rect>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QPlainTextEdit::NoWrap</enum>
+     </property>
+     <property name="plainText">
+      <string>instantiated patterns:</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

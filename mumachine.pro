@@ -16,9 +16,11 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    mu_machine.cpp
+    mu_machine.cpp \
+    tokenizer.cpp
 
 HEADERS  += mainwindow.h \
-    mu_machine.h
+    mu_machine.h \
+    tokenizer.h
 
 FORMS    += mainwindow.ui

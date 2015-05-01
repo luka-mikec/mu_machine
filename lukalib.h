@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <cstdlib>
 #include <ctime>
@@ -30,7 +31,7 @@ using namespace std;
 /*  GENERAL FUNCTIONS   */
 
 //#define full(x) x.begin(), x.end()
-#define full(x) begin(x), end(x)
+#define full(x) std::begin(x), std::end(x)
 #define contains(x, y) (std::find(full(x), y) != x.end())
 #define pointer_iterate(iter, cont) if (cont.size()) for (auto &iter : cont) if (iter)
 #define pointer_iterate_blown(iter, cont) for (auto iter = cont.begin(); iter != cont.end(); ++iter) if (*iter)

@@ -1,7 +1,6 @@
 #include "mu_machine.h"
 
-
-tokenizer<char_separator<char>>::iterator& next_token(parse_state &state, bool record = true)
+tokenizer::iterator& next_token(parse_state &state, bool record = true)
 {
     // not sure what this does
     // something along the lines of getting the next non-\n token
@@ -41,7 +40,7 @@ tokenizer<char_separator<char>>::iterator& next_token(parse_state &state, bool r
     return state.it;
 }
 
-tokenizer<char_separator<char>>::iterator& next_token(tokenizer<char_separator<char>>::iterator &it)
+tokenizer::iterator& next_token(tokenizer::iterator &it)
 {
     parse_state state;
     state.it = it;
@@ -580,7 +579,7 @@ expr::
 
 
 
-int compile_and_run(tokenizer<char_separator<char>>& tokens, tokenizer<char_separator<char>>& bindings_tokens)
+pair<int, string> compile_and_run(tokenizer& tokens, tokenizer& bindings_tokens)
 {
     mu_env env;
     env.function_names = {"sc", "z"};
@@ -642,5 +641,13 @@ int compile_and_run(tokenizer<char_separator<char>>& tokens, tokenizer<char_sepa
     }
 
 
-    return env.functions["run"].first->right->eval(vals, "run", env);
+    int r = env.functions["run"].first->right->eval(vals, "run", env);
+
+    string instns;
+    for (string &s : env.instantiated)
+        instns += contains(s, '<') ?
+                    s + " (" + scast<string>(env.arities[s]) + ")\n"
+                  : "";
+
+    return make_pair(r, instns);
 }

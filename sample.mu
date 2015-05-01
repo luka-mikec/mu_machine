@@ -79,7 +79,7 @@ branch con iftrue iffalse = add mul(sg con, iftrue) mul(neg con, iffalse)
     accumulate_first_arg 0,     x = act(n0 x, x)
     accumulate_first_arg y + 1, x = merger(
         accumulate_first_arg(y,    x)
-        merger              (sc y, x)
+        act                 (sc y, x)
     )
     # f(0) + ... + f(y), where + is merge operation #
     accumulate_first x = accumulate_first_arg{merger, adapter{act .0}} x z(x)
@@ -101,6 +101,48 @@ branch con iftrue iffalse = add mul(sg con, iftrue) mul(neg con, iffalse)
     
     # f(l) + ... + f(r), where + is merge operation #
     accumulate l r = accumulate_arg{merger, adapter{act .0}} l r z(l)
+}
+
+{ merger2 act2 | 
+    # f(0, arg2) + ... + f(y, arg2), where + is merge operation #
+    accumulate_first_arg2 0,     x0 x1 = act2(n0 x0, x0 x1)
+    accumulate_first_arg2 y + 1, x0 x1 = merger2(
+        accumulate_first_arg2(y,    x0 x1)
+        act2                 (sc y, x0 x1)
+    )
+    
+    # f(offset, arg2) + ... + f(y + offset, arg2), where + is merge operation #
+    accumulate_offset_arg2 0,     offset, x0 x1 = act2(offset, x0 x1)
+    accumulate_offset_arg2 y + 1, offset, x0 x1 = merger2(
+        accumulate_offset_arg2(y, offset, x0 x1)
+        act2                  (add(offset, sc y) x0 x1)
+    )
+
+    # f(l, arg2) + ... + f(r, arg2), where + is merge operation #
+    accumulate_arg2 l r x0 x1  = restrict2{lte}(l, r,
+        accumulate_offset_arg2{merger2, act2} sub(r l) l x0 x1
+    )
+}
+
+{ merger3 act3 | 
+    # f(0, arg3) + ... + f(y, arg3), where + is merge operation #
+    accumulate_first_arg3 0,     x0 x1 x2 = act3(n0 x0, x0 x1 x2)
+    accumulate_first_arg3 y + 1, x0 x1 x2 = merger3(
+        accumulate_first_arg3(y,    x0 x1 x2)
+        act3                 (sc y, x0 x1 x2)
+    )
+    
+    # f(offset, arg3) + ... + f(y + offset, arg3), where + is merge operation #
+    accumulate_offset_arg3 0,     offset, x0 x1 x2 = act3(offset, x0 x1 x2)
+    accumulate_offset_arg3 y + 1, offset, x0 x1 x2 = merger3(
+        accumulate_offset_arg3(y, offset, x0 x1 x2)
+        act3                  (add(offset, sc y) x0 x1 x2)
+    )
+
+    # f(l, arg3) + ... + f(r, arg3), where + is merge operation #
+    accumulate_arg3 l r x0 x1 x2  = restrict2{lte}(l, r,
+        accumulate_offset_arg3{merger3, act3} sub(r l) l x0 x1 x2
+    )
 }
 
 { summand | 
@@ -156,8 +198,33 @@ branch con iftrue iffalse = add mul(sg con, iftrue) mul(neg con, iffalse)
    bmu x limit = mu2{bmu_helper{binary_bmu_predicate}} x limit
 
    # bounded inverse mu operator #
-   bimu x limit = bmu{adapter3{neg, binary_bmu_predicate}} x limit
+   bimu x limit = bmu{adapter{neg, binary_bmu_predicate}} x limit
 }
+{ ternary_bmu_predicate | 
+   # if y < limit: returns sg f(x0, x1, y), else returns z #
+   bmu_helper3 x0 x1 limit y = branch lt(y limit), sg ternary_bmu_predicate(x0 x1 y), n0 x0
+
+   # bounded mu operator #
+   bmu3 x0 x1 limit = mu3{bmu_helper3{ternary_bmu_predicate}} x0 x1 limit
+
+   # bounded inverse mu operator #
+   bimu3 x0 x1 limit = bmu3{adapter3{neg, ternary_bmu_predicate}} x0 x1 limit
+}
+
+# div: floor(first/second) #
+div_helper a b c = and gte(a mul(b c)) lt(a mul(b, sc c))
+div x y = bimu3{div_helper} x y x
+
+# bounded quantifiers # 
+{ exist_property | 
+    exists left right = sg sum{exist_property} left right
+}
+
+{ exist_property3 | 
+    exists3 left right x0 x1 = sg accumulate_arg2{add, exist_property3} left right x0 x1
+}
+
+{ binder | bind x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 = 
 
 
 # uncomment one of these: #
@@ -168,5 +235,9 @@ branch con iftrue iffalse = add mul(sg con, iftrue) mul(neg con, iffalse)
 # complex pattern usage (haskell's fold equivalent) #
 # run a c  = accumulate{mul, exp2} a c #
 
+a_puta_b_je_c a b c = eql c, mul a b
+
 # what's 3 + 5? #
-run a b c d = bimu{gt} c a
+run a b c d e le de = exists3{a_puta_b_je_c} le de b e
+
+NAPRAVITI BINDOVE! eliminiraju sve ove blablaK verzij
