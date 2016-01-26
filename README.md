@@ -55,7 +55,4 @@ Builtin functions:
 - *Macros*
    Syntax: { macro_parameters | statement1 ... statementn } (see example)
 
-----
-
-Currently captures all primitive recursive functions; unbounded mu-operator is planned.
 
